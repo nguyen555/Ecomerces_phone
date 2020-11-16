@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security 
+                           http://www.springframework.org/schema/security/spring-security.xsd
+">
+    
+    
+    <security:authentication-manager>
+        <security:authentication-provider>
+            <security:jdbc-user-service data-source-ref="dataSource" 
+                users-by-username-query="select email,concat('{noop}',password),activate from customer where email=?"
+                authorities-by-username-query="select username,type from accounts where customer_id=?" />
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <security:http pattern="/favion. ico" security="none" />
+    <security:http auto-config="true">
+        <security:csrf disabled="true"/>
+        <security:access-denied-handler error-page="/403_error.jsp" />
+        <security:form-login login-page="/login.jsp?login_error=0" 
+                             login-processing-url="/j_spring_security_check" 
+                             username-parameter="email"
+                             password-parameter="password" />
+        <security:intercept-url pattern="/user/*" access="hasType('Admin')" />
+    </security:http>
+    
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/flight" />
+        <property name="username" value="root" />
+        <property name="password" value="admin" />  
+    </bean>
+</beans>
